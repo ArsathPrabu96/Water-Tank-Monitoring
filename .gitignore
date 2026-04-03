@@ -55,3 +55,8 @@ Thumbs.db
 # Misc
 *.log
 ss/
+
+# Build outputs
+firmware/build_out.txt
+firmware/output.txt
+firmware/pio_build.txt
