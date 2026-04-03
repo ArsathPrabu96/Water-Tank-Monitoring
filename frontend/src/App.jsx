@@ -12,6 +12,7 @@ function App() {
   const [connected, setConnected] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(null)
   const [animatedLevel, setAnimatedLevel] = useState(0)
+  const [apiError, setApiError] = useState(null)
   const wsRef = useRef(null)
 
   useEffect(() => {
@@ -77,9 +78,11 @@ function App() {
           status: json.status
         })
         setLastUpdated(new Date(json.timestamp))
+        setApiError(null)
       }
     } catch (e) {
       console.error('Failed to fetch data:', e)
+      setApiError(`Cannot connect to API at ${API_URL}`)
     }
   }
 
@@ -165,6 +168,13 @@ function App() {
           <div className="pulse-ring"></div>
         </div>
       </header>
+
+      {apiError && (
+        <div className="error-banner">
+          <AlertTriangle size={20} />
+          <span>{apiError}</span>
+        </div>
+      )}
 
       <div className="grid">
         <div className="card tank-card">
