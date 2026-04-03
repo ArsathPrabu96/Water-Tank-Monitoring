@@ -23,8 +23,8 @@ struct CalibrationData {
 
 const char* ssid = "prabu96";
 const char* password = "rap@1996";
-const char* serverURL = "https://water-tank-backend.onrender.com/api/v1/data";
-const char* mqttServer = "water-tank-backend.onrender.com";
+const char* serverURL = "https://water-tank-monitoring-1.onrender.com/api/v1/data";
+const char* mqttServer = "water-tank-monitoring-1.onrender.com";
 const int mqttPort = 1883;
 const char* mqttTopic = "watertank/data";
 
