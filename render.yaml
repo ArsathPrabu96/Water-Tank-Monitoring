@@ -1,7 +1,7 @@
 services:
   - type: web
     name: water-tank-monitoring
-    env: python
+    runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     rootDir: backend
@@ -12,7 +12,7 @@ services:
 
   - type: web
     name: water-tank-monitoring-1
-    env: static
+    runtime: static
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     rootDir: frontend
@@ -21,4 +21,3 @@ services:
         value: "18"
       - key: VITE_API_URL
         value: "https://water-tank-monitoring.onrender.com"
-    region: singapore
