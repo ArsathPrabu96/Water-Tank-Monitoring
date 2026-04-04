@@ -180,7 +180,14 @@ async def get_latest_data(device_id: str = "tank_001"):
     conn.close()
 
     if row is None:
-        raise HTTPException(status_code=404, detail="No data found")
+        return {
+            "id": 0,
+            "device_id": device_id,
+            "water_level": 0.0,
+            "distance_cm": 0,
+            "status": "NORMAL",
+            "timestamp": datetime.now().isoformat(),
+        }
 
     return dict(row)
 
