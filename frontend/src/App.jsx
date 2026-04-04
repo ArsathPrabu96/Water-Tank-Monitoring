@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { Droplets, Activity, AlertTriangle, CheckCircle, Wifi, Gauge, TrendingUp, Clock, Droplet, Bell } from 'lucide-react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = (import.meta.env.VITE_API_URL || 'https://water-tank-monitoring.onrender.com').replace(/\/$/, '')
+const WS_URL = API_URL.replace(/^http/, 'ws')
 
 function App() {
   const [data, setData] = useState({ water_level: 0, distance_cm: 0, status: 'NORMAL' })
@@ -28,7 +29,12 @@ function App() {
       fetchStats()
     }, 10000)
     
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      if (wsRef.current) {
+        wsRef.current.close()
+      }
+    }
   }, [])
 
   useEffect(() => {
@@ -45,7 +51,7 @@ function App() {
   }, [data.water_level, animatedLevel])
 
   const connectWebSocket = () => {
-    const wsUrl = API_URL.replace('http', 'ws') + '/ws'
+    const wsUrl = `${WS_URL}/ws`
     wsRef.current = new WebSocket(wsUrl)
     
     wsRef.current.onopen = () => setConnected(true)
@@ -65,6 +71,10 @@ function App() {
       setConnected(false)
       setTimeout(connectWebSocket, 3000)
     }
+
+    wsRef.current.onerror = () => {
+      setConnected(false)
+    }
   }
 
   const fetchLatestData = async () => {
@@ -79,6 +89,10 @@ function App() {
         })
         setLastUpdated(new Date(json.timestamp))
         setApiError(null)
+      } else if (res.status === 404) {
+        setApiError('No sensor readings received yet. Send data from ESP32 to see live updates.')
+      } else {
+        setApiError(`API request failed (${res.status}) at ${API_URL}`)
       }
     } catch (e) {
       console.error('Failed to fetch data:', e)
