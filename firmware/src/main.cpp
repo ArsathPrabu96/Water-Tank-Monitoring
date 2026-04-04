@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -23,8 +24,8 @@ struct CalibrationData {
 
 const char* ssid = "prabu96";
 const char* password = "rap@1996";
-const char* serverURL = "https://water-tank-api.onrender.com/api/v1/data";
-const char* mqttServer = "water-tank-api.onrender.com";
+const char* serverURL = "https://water-tank-monitoring.onrender.com/api/v1/data";
+const char* mqttServer = "water-tank-monitoring.onrender.com";
 const int mqttPort = 1883;
 const char* mqttTopic = "watertank/data";
 
@@ -42,6 +43,7 @@ Adafruit_SSD1306 display(OLED_SCREEN_WIDTH, OLED_SCREEN_HEIGHT, &Wire, OLED_RESE
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 WiFiClient wifiClient;
+WiFiClientSecure secureClient;
 PubSubClient mqttClient(wifiClient);
 HTTPClient httpClient;
 
@@ -208,7 +210,8 @@ void sendDataToServer(float waterLevel, int distance, String status) {
     String json = createJSON(waterLevel, distance, status);
     Serial.println("Sending data: " + json);
     
-    httpClient.begin(wifiClient, serverURL);
+    secureClient.setInsecure();
+    httpClient.begin(secureClient, serverURL);
     httpClient.addHeader("Content-Type", "application/json");
     int httpCode = httpClient.POST(json);
     
