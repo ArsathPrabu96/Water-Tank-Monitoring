@@ -53,6 +53,8 @@ String currentStatus = "NORMAL";
 bool wifiConnected = false;
 bool mqttConnected = false;
 CalibrationData calib;
+unsigned long lastWiFiRetryTime = 0;
+const unsigned long wifiRetryInterval = 10000;
 
 unsigned long currentTimestamp() {
     return millis();
@@ -95,6 +97,7 @@ void connectWiFi() {
     } else {
         wifiConnected = false;
         Serial.println("\nWiFi Connection Failed!");
+        WiFi.disconnect(true);
     }
 }
 
@@ -349,6 +352,16 @@ void setup() {
 
 void loop() {
     unsigned long currentTime = millis();
+
+    if (WiFi.status() != WL_CONNECTED) {
+        wifiConnected = false;
+        if (currentTime - lastWiFiRetryTime >= wifiRetryInterval) {
+            lastWiFiRetryTime = currentTime;
+            connectWiFi();
+        }
+    } else {
+        wifiConnected = true;
+    }
     
     if (digitalRead(CALIBRATION_BUTTON_PIN) == LOW) {
         Serial.println("Calibration button pressed!");
